@@ -47,5 +47,3 @@ aws/**/builds
 
 #Ignore actions and workflows for now
 action.yml
-deploy.yaml
-pre-actions.yaml
