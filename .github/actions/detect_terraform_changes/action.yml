@@ -1,17 +1,26 @@
 name: 'Detect Terraform Changes'
-description: 'Initializes and plans Terraform changes'
+description: 'Initializes and plans Terraform changes in a specific directory'
+inputs:
+  path:
+    description: 'The directory where terraform files are located'
+    required: true
+    default: '.'
+
 runs:
   using: "composite"
   steps:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "1.10.0"
+        terraform_version: "1.12.0" # Match your latest successful run
+        terraform_wrapper: true
 
     - name: Terraform Init
       shell: bash
+      working-directory: ${{ inputs.path }}
       run: terraform init
 
     - name: Terraform Plan
       shell: bash
+      working-directory: ${{ inputs.path }}
       run: terraform plan -input=false

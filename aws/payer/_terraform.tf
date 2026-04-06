@@ -11,7 +11,7 @@ terraform {
 
   backend "s3" {
     bucket       = "lance-prod-management-commercial"
-    key          = "terraform.tfstate"
+    key          = "aws/payer/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
     use_lockfile = true
