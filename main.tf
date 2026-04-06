@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "lance-prd-management-commercial"
+    bucket  = "lance-prod-management-commercial"
     key     = "terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
