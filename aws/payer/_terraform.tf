@@ -10,10 +10,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "lance-prod-management-commercial"
-    key     = "terraform.tfstate"
-    region  = "us-east-1"
-    encrypt = true
+    bucket       = "lance-prod-management-commercial"
+    key          = "terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
     use_lockfile = true
   }
 }
@@ -21,12 +21,4 @@ terraform {
 # Default provider
 provider "aws" {
   region = "us-east-1"
-}
-
-# Add a test resource so the plan has something to do
-resource "aws_s3_bucket_versioning" "state_versioning" {
-  bucket = "lance-prod-management-commercial"
-  versioning_configuration {
-    status = "Enabled"
-  }
 }
