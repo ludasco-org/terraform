@@ -1,37 +1,17 @@
-name: AWS Terraform Deployment
-on:
-  push:
-    branches:
-      - main
+name: 'Detect Terraform Changes'
+description: 'Initializes and plans Terraform changes'
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.12.0"
 
-permissions:
-  id-token: write   # Required for OIDC JWT
-  contents: read    # Required for checkout
+    - name: Terraform Init
+      shell: bash
+      run: terraform init
 
-jobs:
-  terraform-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
-          aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.0" # Specify your required version
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan -input=false
-
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve -input=false
+    - name: Terraform Plan
+      shell: bash
+      run: terraform plan -input=false

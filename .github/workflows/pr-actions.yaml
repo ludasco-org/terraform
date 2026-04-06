@@ -1,6 +1,6 @@
-name: AWS Terraform Deploy
+name: PR Security & Plan Scan
 on:
-  push:
+  pull_request:
     branches: [ main ]
 
 permissions:
@@ -8,19 +8,16 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
           aws-region: us-east-1
 
-      - name: Run Terraform Plan (Reuse Action)
+      - name: Run Terraform Logic
         uses: ./.github/actions/detect_terraform_changes
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
