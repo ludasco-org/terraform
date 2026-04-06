@@ -46,5 +46,3 @@ terraform.rc
 aws/**/builds
 
 #Ignore actions and workflows for now
-deploy.yaml
-pre-actions.yaml
