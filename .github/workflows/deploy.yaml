@@ -1,0 +1,95 @@
+---
+name: Deploy terraform stacks
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+  actions: read
+
+env:
+  REGION: us-east-1
+
+jobs:
+  detect_changes:
+    name: Detect changed stacks
+    runs-on: ubuntu-latest-4-cores
+    outputs:
+      stacks: ${{ steps.detect.outputs.changed_stacks }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - name: Checkout repository
+        uses: jenseng/dynamic-uses@8bc24f0360175e710da532c4d19eafdbed489a06 # v1.1.1
+        with:
+          uses: ${{ github.repository_owner }}/githubactions/actions/checkout@main
+          with: |
+            fetch-depth: 0
+      - name: Detect changed stacks
+        id: detect
+        uses: ./.github/actions/detect_terraform_changes
+
+  deploy:
+    name: Deploy terraform stacks
+    runs-on: ubuntu-latest-4-cores
+    needs: detect_changes
+    if: needs.detect_changes.outputs.has_changes == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.detect_changes.outputs.stacks) }}
+    env:
+      TF_IN_AUTOMATION: true
+      TF_VERSION: 1.13.5
+    steps:
+      - name: Checkout repository
+        uses: jenseng/dynamic-uses@8bc24f0360175e710da532c4d19eafdbed489a06 # v1.1.1
+        with:
+          uses: ${{ github.repository_owner }}/githubactions/actions/checkout@main
+      - name: Compute environment
+        id: compute_environment
+        shell: bash
+        run: |
+          OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          if [ "${OWNER}" == "nozominetworksgov" ]; then
+            ENVIRONMENT="production"
+          else
+            ENVIRONMENT="staging"
+          fi
+          echo "ENVIRONMENT=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+      - name: Get Stack Name
+        id: stack_name
+        shell: bash
+        run: |
+          STACK_NAME=$(basename "${{ matrix.stack }}")
+          echo "STACK_NAME=${STACK_NAME}" >> $GITHUB_ENV
+      - name: Get IAM Role ARN
+        id: iam_role_arn
+        uses: jenseng/dynamic-uses@8bc24f0360175e710da532c4d19eafdbed489a06 # v1.1.1
+        with:
+          uses: ${{ github.repository_owner }}/githubactions/actions/organization_variables@main
+          with: |
+            path: ${{ format('{0}."{1}".iam_role', steps.compute_environment.outputs.ENVIRONMENT, env.STACK_NAME) }}
+      - name: Obtain AWS nws-tools Credentials
+        uses: jenseng/dynamic-uses@8bc24f0360175e710da532c4d19eafdbed489a06 # v1.1.1
+        with:
+          uses: ${{ github.repository_owner }}/githubactions/actions/configure_aws_profile@main
+          with: |
+            role: ${{ fromJSON(steps.iam_role_arn.outputs.outputs).result }}
+            region: ${{ env.REGION }}
+            duration: 3600
+      - name: Deploy
+        uses: jenseng/dynamic-uses@8bc24f0360175e710da532c4d19eafdbed489a06 # v1.1.1
+        with:
+          uses: ${{ github.repository_owner }}/githubactions/actions/terraform_full@main
+          with: |
+            terraform_version: ${{ env.TF_VERSION }}
+            working_directory: ${{ matrix.stack }}
+            approval_identifier: ${{ env.STACK_NAME }}
+          
