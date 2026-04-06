@@ -5,12 +5,13 @@ on:
     branches: [ main ]
 
 concurrency:
-  [cite_start]group: tf-state-lock-main # Matches Deploy group to prevent S3 lock collisions 
-  cancel-in-progress: true 
+  group: tf-state-lock-main
+  cancel-in-progress: true
 
 permissions:
   id-token: write
   contents: read
+  pull-requests: write  # Added to allow posting the plan as a comment
 
 jobs:
   validate:
@@ -24,8 +25,18 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
           aws-region: us-east-1
 
-      # Removed the redundant first 'Run Terraform Logic' call
       - name: Run Terraform Scan
+        id: tf_logic
         uses: ./.github/actions/detect_terraform_changes
         with:
-          [cite_start]path: 'aws/payer' # Correctly targets the subdirectory
+          path: 'aws/payer'
+
+      - name: Post Plan to PR
+        uses: mshick/add-pr-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          message: |
+            #### Terraform Plan for `aws/payer` 📖
+            ```terraform
+            ${{ steps.tf_logic.outputs.plan_output }}
+            ```
