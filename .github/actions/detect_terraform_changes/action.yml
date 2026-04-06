@@ -6,6 +6,11 @@ inputs:
     required: true
     default: '.'
 
+outputs:
+  plan_output:
+    description: "The raw terraform plan output"
+    value: ${{ steps.plan.outputs.stdout }}
+
 runs:
   using: "composite"
   steps:
@@ -24,3 +29,10 @@ runs:
       shell: bash
       working-directory: ${{ inputs.path }}
       run: terraform plan -input=false
+
+    - name: Terraform Plan
+      id: plan
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      # We use -no-color so the PR comment doesn't have weird ANSI characters
+      run: terraform plan -no-color -input=false
