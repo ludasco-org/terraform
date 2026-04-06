@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 concurrency:
-  [cite_start]group: tf-state-lock-main # Matches Deploy group to prevent S3 lock collisions 
-  cancel-in-progress: true 
+  [cite_start]group: tf-state-lock-main # Matches Deploy group to prevent S3 lock collisions
+  cancel-in-progress: true
 
 permissions:
   id-token: write
