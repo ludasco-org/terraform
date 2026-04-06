@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "tfstate-nozomi-gov-prd-management-commercial"
+    bucket  = "lance-prd-management-commercial"
     key     = "terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
