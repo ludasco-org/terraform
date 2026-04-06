@@ -28,3 +28,8 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+
+      - name: Run Terraform Logic
+        uses: ./.github/actions/detect_terraform_changes
+        with:
+          path: 'aws/payer'

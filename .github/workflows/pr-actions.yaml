@@ -26,3 +26,8 @@ jobs:
 
       - name: Run Terraform Logic
         uses: ./.github/actions/detect_terraform_changes
+
+      - name: Run Terraform Logic
+        uses: ./.github/actions/detect_terraform_changes
+        with:
+          path: 'aws/payer'
