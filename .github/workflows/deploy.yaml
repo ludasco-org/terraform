@@ -3,6 +3,10 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: tf-lock-main
+  cancel-in-progress: false # NEVER cancel a deploy mid-way; let it finish!
+
 permissions:
   id-token: write
   contents: read

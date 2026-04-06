@@ -4,6 +4,10 @@ on:
     types: [opened, synchronize, reopened]
     branches: [ main ]
 
+concurrency:
+  group: tf-lock-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true # Safe to cancel an old PR scan if a new commit comes in
+
 permissions:
   id-token: write
   contents: read
