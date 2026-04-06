@@ -4,7 +4,7 @@ on:
     branches: [ main ]
 
 concurrency:
-  group: tf-lock-main
+  group: tf-state-lock-main  # Must match the PR group exactly
   cancel-in-progress: false # NEVER cancel a deploy mid-way; let it finish!
 
 permissions:
