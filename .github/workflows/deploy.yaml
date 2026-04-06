@@ -4,8 +4,8 @@ on:
     branches: [ main ]
 
 concurrency:
-  group: tf-state-lock-main  # Must match the PR group exactly
-  cancel-in-progress: false # NEVER cancel a deploy mid-way; let it finish!
+  group: tf-state-lock-main  # Correct: matches the PR group
+  cancel-in-progress: false
 
 permissions:
   id-token: write
@@ -23,13 +23,13 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
           aws-region: us-east-1
 
-      - name: Run Terraform Plan (Reuse Action)
-        uses: ./.github/actions/detect_terraform_changes
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
-
-      - name: Run Terraform Logic
+      # 1. RUN PLAN FIRST (Using your composite action with the correct path)
+      - name: Run Terraform Plan
         uses: ./.github/actions/detect_terraform_changes
         with:
           path: 'aws/payer'
+
+      # 2. RUN APPLY (Must specify working-directory to find the initialized state)
+      - name: Terraform Apply
+        working-directory: aws/payer
+        run: terraform apply -auto-approve -input=false

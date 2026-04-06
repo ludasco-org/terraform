@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 concurrency:
-  group: tf-state-lock-main # Must match the Deploy group exactly
-  cancel-in-progress: true # Safe to cancel an old PR scan if a new commit comes in
+  [cite_start]group: tf-state-lock-main # Matches Deploy group to prevent S3 lock collisions 
+  cancel-in-progress: true 
 
 permissions:
   id-token: write
@@ -24,10 +24,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
           aws-region: us-east-1
 
-      - name: Run Terraform Logic
-        uses: ./.github/actions/detect_terraform_changes
-
-      - name: Run Terraform Logic
+      # Removed the redundant first 'Run Terraform Logic' call
+      - name: Run Terraform Scan
         uses: ./.github/actions/detect_terraform_changes
         with:
-          path: 'aws/payer'
+          [cite_start]path: 'aws/payer' # Correctly targets the subdirectory
