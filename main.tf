@@ -1,6 +1,6 @@
 terraform {
 
-  required_version = ">= 1.12.0"
+  required_version = ">= 1.10.0"
 
   required_providers {
     aws = {
@@ -19,7 +19,7 @@ terraform {
 
 # Default provider
 provider "aws" {
-  region = us-east-1
+  region = "us-east-1"
 }
 
 # Add a test resource so the plan has something to do
