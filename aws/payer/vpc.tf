@@ -5,7 +5,7 @@ resource "aws_vpc" "main" {
 
   tags = {
     Name        = "terraform-course"
-    Environment = "lab"
+    Environment = "lab-learning"
     Managed_by  = "Terraform"
   }
 }
