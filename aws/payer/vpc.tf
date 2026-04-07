@@ -77,11 +77,11 @@ resource "aws_security_group" "example" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "443"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "ICMP Egress"
+    description = "HTTPS Egress"
   }
 
   tags = {
